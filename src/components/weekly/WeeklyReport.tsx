@@ -53,10 +53,10 @@ function sentimentIcon(avg: number | null) {
 }
 
 function sentimentColor(avg: number | null): string {
-  if (avg === null) return 'text-stone-500'
-  if (avg > 0.15) return 'text-green-700'
-  if (avg < -0.15) return 'text-red-600'
-  return 'text-stone-600'
+  if (avg === null) return 'text-stone-500 dark:text-stone-400'
+  if (avg > 0.15) return 'text-green-700 dark:text-green-400'
+  if (avg < -0.15) return 'text-red-600 dark:text-red-400'
+  return 'text-stone-600 dark:text-stone-300'
 }
 
 function PieTooltip({ active, payload }: PieTooltipProps) {
@@ -174,16 +174,16 @@ export function WeeklyReport() {
           onClick={() => setWeekOffset((o) => o - 1)}
           disabled={!canGoBack}
           aria-label="Previous week"
-          className="p-2 rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-xl border border-stone-200 dark:border-stone-700/50 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronLeft size={18} />
         </button>
 
         <div className="text-center">
-          <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest">
+          <p className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-widest">
             Week {weekNumber}
           </p>
-          <p className="font-display italic text-stone-800 text-lg leading-tight">
+          <p className="font-display italic text-stone-800 dark:text-stone-100 text-lg leading-tight">
             {weekLabel}
           </p>
         </div>
@@ -192,7 +192,7 @@ export function WeeklyReport() {
           onClick={() => setWeekOffset((o) => o + 1)}
           disabled={!canGoForward}
           aria-label="Next week"
-          className="p-2 rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-xl border border-stone-200 dark:border-stone-700/50 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronRight size={18} />
         </button>
@@ -213,9 +213,9 @@ export function WeeklyReport() {
             <div className="space-y-4">
               {/* ── Hero: dominant mood ── */}
               <div
-                className="relative overflow-hidden rounded-3xl p-8 text-center"
+                className="relative overflow-hidden rounded-3xl p-8 text-center bg-white dark:bg-stone-900"
                 style={{
-                  background: `radial-gradient(ellipse at 50% 0%, ${dominantMeta!.color}33 0%, transparent 70%), #fff`,
+                  backgroundImage: `radial-gradient(ellipse at 50% 0%, ${dominantMeta!.color}33 0%, transparent 70%)`,
                   border: `1px solid ${dominantMeta!.color}44`,
                 }}
               >
@@ -227,10 +227,10 @@ export function WeeklyReport() {
                   <span className="text-6xl block mb-3" role="img" aria-label={dominantMeta!.label}>
                     {dominantMeta!.emoji}
                   </span>
-                  <h2 className="font-display italic text-3xl font-medium text-stone-900">
+                  <h2 className="font-display italic text-3xl font-medium text-stone-900 dark:text-stone-50">
                     {dominantMeta!.label}
                   </h2>
-                  <p className="mt-1 text-sm text-stone-500">
+                  <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                     Your dominant mood this week
                   </p>
                 </motion.div>
@@ -262,8 +262,8 @@ export function WeeklyReport() {
               </div>
 
               {/* ── Donut chart + distribution ── */}
-              <div className="bg-white rounded-3xl border border-stone-200 p-5 shadow-sm">
-                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-4">
+              <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-700/50 p-5 shadow-sm">
+                <p className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">
                   Mood distribution
                 </p>
                 <div className="flex items-center gap-6 flex-wrap">
@@ -292,10 +292,10 @@ export function WeeklyReport() {
                     {/* Center label */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="text-center">
-                        <p className="font-display text-2xl font-medium text-stone-900 leading-none">
+                        <p className="font-display text-2xl font-medium text-stone-900 dark:text-stone-50 leading-none">
                           {stats.entryCount}
                         </p>
-                        <p className="text-[9px] text-stone-400 uppercase tracking-widest mt-0.5">
+                        <p className="text-[9px] text-stone-400 dark:text-stone-500 uppercase tracking-widest mt-0.5">
                           entries
                         </p>
                       </div>
@@ -311,7 +311,7 @@ export function WeeklyReport() {
                       return (
                         <div key={mood} className="flex items-center gap-2.5">
                           <span className="text-sm w-5 text-center">{meta.emoji}</span>
-                          <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
                             <motion.div
                               className="h-full rounded-full"
                               style={{ backgroundColor: meta.color }}
@@ -320,7 +320,7 @@ export function WeeklyReport() {
                               transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }}
                             />
                           </div>
-                          <span className="text-xs text-stone-500 tabular-nums w-4 text-right">
+                          <span className="text-xs text-stone-500 dark:text-stone-400 tabular-nums w-4 text-right">
                             {count}
                           </span>
                         </div>
@@ -346,8 +346,8 @@ export function WeeklyReport() {
 
               {/* ── Top words ── */}
               {stats.topWords.length > 0 && (
-                <div className="bg-white rounded-3xl border border-stone-200 p-5 shadow-sm">
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-4">
+                <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-700/50 p-5 shadow-sm">
+                  <p className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-4">
                     Top words this week
                   </p>
                   <div className="flex gap-2 flex-wrap">
@@ -357,7 +357,7 @@ export function WeeklyReport() {
                         initial={{ opacity: 0, scale: 0.85 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 25 }}
-                        className="font-display italic text-2xl md:text-3xl font-medium text-stone-700 bg-stone-50 border border-stone-200 rounded-2xl px-4 py-2"
+                        className="font-display italic text-2xl md:text-3xl font-medium text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl px-4 py-2"
                       >
                         {word}
                       </motion.span>
@@ -385,7 +385,7 @@ function StatCard({
   label,
   value,
   sub,
-  valueClass = 'text-stone-900',
+  valueClass = 'text-stone-900 dark:text-stone-50',
 }: {
   icon: React.ReactNode
   label: string
@@ -394,17 +394,17 @@ function StatCard({
   valueClass?: string
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 p-4 shadow-sm">
       <div className="flex items-center gap-1.5 mb-2">
         {icon}
-        <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider leading-none">
+        <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider leading-none">
           {label}
         </span>
       </div>
       <p className={`font-display text-3xl font-medium leading-none ${valueClass}`}>
         {value}
         {sub && (
-          <span className="text-base font-body font-normal text-stone-400 ml-1">{sub}</span>
+          <span className="text-base font-body font-normal text-stone-400 dark:text-stone-500 ml-1">{sub}</span>
         )}
       </p>
     </div>
@@ -423,23 +423,23 @@ function DayCard({
   const meta = MOOD_META[entry.mood]
   const accentClass =
     accent === 'green'
-      ? 'text-green-700 bg-green-50 border-green-200'
-      : 'text-red-600 bg-red-50 border-red-200'
+      ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900/50'
+      : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50'
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm flex flex-col gap-2">
+    <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 p-4 shadow-sm flex flex-col gap-2">
       <span className={`self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${accentClass}`}>
         {label}
       </span>
-      <p className="text-xs font-display italic text-stone-400">
+      <p className="text-xs font-display italic text-stone-400 dark:text-stone-500">
         {format(new Date(entry.date + 'T00:00:00'), 'EEE, MMM d')}
       </p>
-      <p className="text-lg font-medium text-stone-900 flex items-center gap-1.5">
+      <p className="text-lg font-medium text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
         <span>{meta.emoji}</span>
         <span>{meta.label}</span>
       </p>
       {entry.note && (
-        <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">
+        <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed line-clamp-2">
           {entry.note}
         </p>
       )}
@@ -455,14 +455,14 @@ function EmptyWeek({
   hasAnyEntries: boolean
 }) {
   return (
-    <div className="bg-white rounded-3xl border border-stone-200 py-16 px-8 text-center shadow-sm">
+    <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-700/50 py-16 px-8 text-center shadow-sm">
       <span className="text-5xl mb-4 block" role="img" aria-label="calendar">
         🗓️
       </span>
-      <h3 className="font-display italic text-2xl font-medium text-stone-700">
+      <h3 className="font-display italic text-2xl font-medium text-stone-700 dark:text-stone-300">
         No entries this week
       </h3>
-      <p className="mt-2 text-sm text-stone-400 max-w-xs mx-auto leading-relaxed">
+      <p className="mt-2 text-sm text-stone-400 dark:text-stone-500 max-w-xs mx-auto leading-relaxed">
         {hasAnyEntries
           ? `Nothing was logged for ${weekLabel}. Navigate to another week or start logging from the dashboard.`
           : 'Start logging your mood from the dashboard to see your weekly digest here.'}

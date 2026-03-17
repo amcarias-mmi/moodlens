@@ -70,10 +70,11 @@ export function EntryList({ wordFilter }: EntryListProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={cn(
-            'w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border bg-white',
-            'focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300',
-            'placeholder:text-stone-400 transition-all duration-200',
-            search ? 'border-amber-300' : 'border-stone-200'
+            'w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border bg-white dark:bg-stone-900',
+            'text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600',
+            'focus:outline-none focus:ring-2 focus:ring-amber-200 dark:focus:ring-amber-900/40 focus:border-amber-300 dark:focus:border-amber-700',
+            'transition-all duration-200',
+            search ? 'border-amber-300 dark:border-amber-700' : 'border-stone-200 dark:border-stone-700'
           )}
         />
         <AnimatePresence>
@@ -99,8 +100,8 @@ export function EntryList({ wordFilter }: EntryListProps) {
           className={cn(
             'px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
             moodFilter === null
-              ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
-              : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
+              ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-sm'
+              : 'bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
           )}
         >
           All
@@ -118,7 +119,7 @@ export function EntryList({ wordFilter }: EntryListProps) {
                 'flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
                 active
                   ? 'text-white shadow-sm'
-                  : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-700'
+                  : 'bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
               )}
             >
               <span>{meta.emoji}</span>
@@ -189,10 +190,10 @@ export function EntryList({ wordFilter }: EntryListProps) {
             >
               {/* Month/year separator */}
               <div className="flex items-center gap-3 pt-2 first:pt-0">
-                <span className="font-display italic text-stone-400 text-sm whitespace-nowrap">
+                <span className="font-display italic text-stone-400 dark:text-stone-500 text-sm whitespace-nowrap">
                   {label}
                 </span>
-                <div className="flex-1 h-px bg-stone-100" />
+                <div className="flex-1 h-px bg-stone-100 dark:bg-stone-800" />
                 <span className="text-xs text-stone-300 tabular-nums">
                   {groupEntries.length}
                 </span>

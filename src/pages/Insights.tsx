@@ -33,10 +33,10 @@ export default function Insights() {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="pt-2"
       >
-        <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 leading-[1.1]">
+        <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 dark:text-stone-50 leading-[1.1]">
           Insights
         </h1>
-        <p className="mt-2 text-sm text-stone-500">
+        <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
           Patterns and trends from your emotional data.
         </p>
       </motion.div>
@@ -46,7 +46,7 @@ export default function Insights() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
-        className="bg-white rounded-2xl border border-stone-200 p-1 flex gap-0.5"
+        className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 p-1 flex gap-0.5"
         role="tablist"
         aria-label="Insights tabs"
       >
@@ -61,14 +61,16 @@ export default function Insights() {
               onClick={() => setTab(id)}
               className={cn(
                 'relative flex-1 py-2.5 text-sm font-medium rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400',
-                active ? 'text-stone-900' : 'text-stone-400 hover:text-stone-600'
+                active
+                  ? 'text-stone-900 dark:text-stone-100'
+                  : 'text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300'
               )}
             >
               {/* Sliding background indicator */}
               {active && (
                 <motion.span
                   layoutId="tab-indicator"
-                  className="absolute inset-0 bg-stone-100 rounded-xl"
+                  className="absolute inset-0 bg-stone-100 dark:bg-stone-800 rounded-xl"
                   transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                 />
               )}
@@ -87,7 +89,7 @@ export default function Insights() {
         role="tabpanel"
         id={`tabpanel-${activeTab}`}
       >
-        <div className="bg-white rounded-3xl border border-stone-200 p-5 md:p-6 shadow-sm">
+        <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-700/50 p-5 md:p-6 shadow-sm">
           {activeTab === 'calendar'  && <CalendarHeatmap />}
           {activeTab === 'trends'    && <SentimentTrend  />}
           {activeTab === 'wordcloud' && <WordCloud        />}

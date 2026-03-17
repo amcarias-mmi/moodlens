@@ -39,29 +39,29 @@ export default function History() {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="pt-2"
       >
-        <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 leading-[1.1]">
+        <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 dark:text-stone-50 leading-[1.1]">
           Your Journal
         </h1>
 
         {stats ? (
           <div className="flex items-center gap-4 mt-3 flex-wrap">
-            <p className="text-sm text-stone-500">
-              <span className="font-semibold text-stone-700">{entries.length}</span>{' '}
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              <span className="font-semibold text-stone-700 dark:text-stone-300">{entries.length}</span>{' '}
               {entries.length === 1 ? 'entry' : 'entries'}
             </p>
             <span className="text-stone-300">·</span>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
               Since{' '}
-              <span className="font-semibold text-stone-700">
+              <span className="font-semibold text-stone-700 dark:text-stone-300">
                 {format(new Date(stats.oldest.date + 'T00:00:00'), 'MMM d, yyyy')}
               </span>
             </p>
             {stats.dominantMood && (
               <>
                 <span className="text-stone-300">·</span>
-                <p className="text-sm text-stone-500 flex items-center gap-1.5">
+                <p className="text-sm text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
                   Mostly{' '}
-                  <span className="font-semibold text-stone-700 flex items-center gap-1">
+                  <span className="font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1">
                     {MOOD_META[stats.dominantMood].emoji} {MOOD_META[stats.dominantMood].label}
                   </span>
                 </p>

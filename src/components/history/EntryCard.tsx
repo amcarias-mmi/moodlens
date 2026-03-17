@@ -79,7 +79,7 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
             duration: 0.25,
             delay: Math.min(index * 0.04, 0.2),
           }}
-          className="relative bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 group"
+          className="relative bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 group"
         >
           {/* Mood color left accent bar */}
           <div
@@ -92,7 +92,7 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 {/* Date in Cormorant italic */}
-                <p className="font-display italic text-stone-400 text-sm leading-none">
+                <p className="font-display italic text-stone-400 dark:text-stone-500 text-sm leading-none">
                   {formattedDate}
                 </p>
 
@@ -101,8 +101,8 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
                   <span className="text-xl leading-none" role="img" aria-hidden="true">
                     {meta.emoji}
                   </span>
-                  <span className="font-semibold text-stone-900 text-sm">{meta.label}</span>
-                  <span className="text-xs text-stone-400">{formattedTime}</span>
+                  <span className="font-semibold text-stone-900 dark:text-stone-100 text-sm">{meta.label}</span>
+                  <span className="text-xs text-stone-400 dark:text-stone-500">{formattedTime}</span>
                 </div>
               </div>
 
@@ -110,7 +110,7 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
               <div className="flex items-center gap-0.5 flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150">
                 <button
                   onClick={() => onEdit(entry)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                   aria-label="Edit entry"
                 >
                   <Pencil size={14} />
@@ -128,7 +128,7 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
             {/* Note text */}
             {entry.note && (
               <div className="mt-3">
-                <p className="text-sm text-stone-600 leading-relaxed">
+                <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
                   {noteDisplay}
                   {hasLongNote && !expanded && (
                     <span className="text-stone-400">…</span>
@@ -157,7 +157,7 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
             )}
 
             {/* Footer badges */}
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 flex-wrap">
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800 flex-wrap">
               {sentimentLabel ? (
                 <Badge
                   variant={

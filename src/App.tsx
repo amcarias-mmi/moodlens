@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { AppShell } from '@/components/layout/AppShell'
 import { useMoodStore } from '@/store/moodStore'
+import { useThemeStore } from '@/store/themeStore'
 import Dashboard from '@/pages/Dashboard'
 import History from '@/pages/History'
 import Insights from '@/pages/Insights'
@@ -11,10 +12,12 @@ import Settings from '@/pages/Settings'
 
 export default function App() {
   const loadEntries = useMoodStore((s) => s.loadEntries)
+  const initTheme = useThemeStore((s) => s.init)
 
   useEffect(() => {
+    initTheme()
     void loadEntries()
-  }, [loadEntries])
+  }, [loadEntries, initTheme])
 
   return (
     <BrowserRouter>

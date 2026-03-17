@@ -20,6 +20,7 @@ interface MoodState {
   updateEntry: (id: string, updates: Pick<MoodEntry, 'mood' | 'note'>) => Promise<void>
   deleteEntry: (id: string) => Promise<void>
   clearAll: () => Promise<void>
+  importEntries: (incoming: MoodEntry[], mode: 'merge' | 'replace') => Promise<number>
   getEntryByDate: (date: string) => MoodEntry | undefined
 }
 
@@ -113,6 +114,31 @@ export const useMoodStore = create<MoodState>((set, get) => ({
   clearAll: async () => {
     set({ entries: [] })
     await clearAllEntries()
+  },
+
+  importEntries: async (incoming: MoodEntry[], mode: 'merge' | 'replace'): Promise<number> => {
+    const existing = get().entries
+    let toImport: MoodEntry[]
+
+    if (mode === 'replace') {
+      set({ entries: [] })
+      await clearAllEntries()
+      toImport = incoming
+    } else {
+      const existingDates = new Set(existing.map((e) => e.date))
+      toImport = incoming.filter((e) => !existingDates.has(e.date))
+    }
+
+    const merged = [...toImport, ...(mode === 'replace' ? [] : existing)].sort(
+      (a, b) => b.timestamp - a.timestamp
+    )
+    set({ entries: merged })
+
+    for (const entry of toImport) {
+      await upsertEntry(entry)
+    }
+
+    return toImport.length
   },
 
   getEntryByDate: (date: string) => {

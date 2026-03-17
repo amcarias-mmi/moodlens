@@ -61,7 +61,7 @@ export default function Dashboard() {
           <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-2">
             {formattedDate}
           </p>
-          <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 leading-[1.1]">
+          <h1 className="font-display italic text-5xl md:text-6xl font-medium text-stone-900 dark:text-stone-50 leading-[1.1]">
             {greeting}.
           </h1>
 
@@ -139,7 +139,7 @@ export default function Dashboard() {
 
 function CTACard({ onOpen }: { onOpen: () => void }) {
   return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-stone-300 bg-white/60 p-8 text-center">
+    <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-stone-300 dark:border-stone-700 bg-white/60 dark:bg-stone-900/60 p-8 text-center">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_-10%,#fef3c733,transparent_60%)] pointer-events-none" />
 
@@ -148,10 +148,10 @@ function CTACard({ onOpen }: { onOpen: () => void }) {
           📓
         </span>
         <div>
-          <h2 className="font-display text-2xl font-medium text-stone-900">
+          <h2 className="font-display text-2xl font-medium text-stone-900 dark:text-stone-50">
             Ready to check in?
           </h2>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Take a moment to reflect on how you're feeling.
           </p>
         </div>
@@ -202,7 +202,7 @@ function TodayCard({
         : 'text-stone-600 bg-stone-50 border-stone-200'
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+    <div className="relative overflow-hidden rounded-3xl border border-stone-200 dark:border-stone-700/50 bg-white dark:bg-stone-900 p-6 shadow-sm">
       {/* Mood color accent stripe */}
       <div
         className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
@@ -218,10 +218,10 @@ function TodayCard({
             {meta.emoji}
           </span>
           <div>
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
               Today's mood
             </p>
-            <h2 className="font-display text-2xl font-medium text-stone-900 mt-0.5">
+            <h2 className="font-display text-2xl font-medium text-stone-900 dark:text-stone-50 mt-0.5">
               {meta.label}
             </h2>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -249,7 +249,7 @@ function TodayCard({
 
         <button
           onClick={onEdit}
-          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors px-2 py-1 rounded-lg hover:bg-stone-100"
+          className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors px-2 py-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800"
           aria-label="Edit today's entry"
         >
           <Pencil size={13} />
@@ -258,7 +258,7 @@ function TodayCard({
       </div>
 
       {entry.note && (
-        <p className="mt-4 text-sm text-stone-600 leading-relaxed border-t border-stone-100 pt-4 line-clamp-3">
+        <p className="mt-4 text-sm text-stone-600 dark:text-stone-300 leading-relaxed border-t border-stone-100 dark:border-stone-800 pt-4 line-clamp-3">
           {entry.note}
         </p>
       )}
@@ -276,12 +276,12 @@ function StatCard({
   value: string
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-xs font-medium text-stone-500">{label}</span>
+        <span className="text-xs font-medium text-stone-500 dark:text-stone-400">{label}</span>
       </div>
-      <p className="font-display text-3xl font-medium text-stone-900">{value}</p>
+      <p className="font-display text-3xl font-medium text-stone-900 dark:text-stone-50">{value}</p>
     </div>
   )
 }
