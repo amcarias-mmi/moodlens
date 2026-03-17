@@ -54,7 +54,13 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
 
   const isEditing = Boolean(existingEntry)
   const canSave = mood !== null
-  const today = format(new Date(), 'EEEE, MMMM d')
+  const isTodayEntry =
+    existingEntry?.date === format(new Date(), 'yyyy-MM-dd')
+
+  // Show the entry's own date when editing a past entry
+  const displayDate = existingEntry
+    ? format(new Date(existingEntry.date + 'T00:00:00'), 'EEEE, MMMM d')
+    : format(new Date(), 'EEEE, MMMM d')
 
   const handleSave = async () => {
     if (!mood) return
@@ -108,10 +114,12 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
                 </span>
                 <div>
                   <h3 className="font-display text-xl font-medium text-stone-900">
-                    Replace today's entry?
+                    {isTodayEntry ? "Replace today's entry?" : 'Update this entry?'}
                   </h3>
                   <p className="mt-1 text-sm text-stone-500 leading-relaxed">
-                    You've already logged your mood today. Saving will replace your existing entry.
+                    {isTodayEntry
+                      ? "You've already logged your mood today. Saving will replace your existing entry."
+                      : `This will update your entry from ${displayDate}.`}
                   </p>
                 </div>
               </div>
@@ -158,16 +166,20 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
               {/* Header strip */}
               <div className="px-6 pt-6 pb-4 border-b border-stone-100">
                 <p className="text-xs font-medium text-stone-400 uppercase tracking-wider mb-1">
-                  {today}
+                  {displayDate}
                 </p>
                 <DialogHeader>
                   <DialogTitle className="font-display text-2xl font-medium text-stone-900 leading-tight">
-                    {isEditing ? "Edit today's entry" : 'How are you feeling?'}
+                    {isEditing
+                      ? isTodayEntry
+                        ? "Edit today's entry"
+                        : 'Edit this entry'
+                      : 'How are you feeling?'}
                   </DialogTitle>
                 </DialogHeader>
                 {isEditing && (
                   <p className="mt-1 text-xs text-amber-600 font-medium">
-                    Editing will replace your existing entry
+                    Saving will replace the existing entry
                   </p>
                 )}
               </div>
