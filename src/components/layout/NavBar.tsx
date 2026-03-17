@@ -11,6 +11,18 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useThemeStore } from '@/store/themeStore'
+import { useMoodStore } from '@/store/moodStore'
+import { todayString } from '@/lib/utils'
+import type { MoodLevel } from '@/types/mood'
+
+const MOOD_DOT_COLORS: Record<MoodLevel, { bg: string; shadow: string; shadowHover: string }> = {
+  5: { bg: '#22c55e', shadow: '0 0 8px #22c55e88',  shadowHover: '0 0 12px #22c55eaa' },
+  4: { bg: '#86efac', shadow: '0 0 8px #86efac88',  shadowHover: '0 0 12px #86efacaa' },
+  3: { bg: '#fbbf24', shadow: '0 0 8px #fbbf2488',  shadowHover: '0 0 12px #fbbf24aa' },
+  2: { bg: '#fb923c', shadow: '0 0 8px #fb923c88',  shadowHover: '0 0 12px #fb923caa' },
+  1: { bg: '#ef4444', shadow: '0 0 8px #ef444488',  shadowHover: '0 0 12px #ef4444aa' },
+}
+const FALLBACK_DOT = { bg: '#a8a29e', shadow: '0 0 8px #a8a29e55', shadowHover: '0 0 12px #a8a29e77' }
 
 const NAV_ITEMS = [
   { to: '/',          label: 'Dashboard', Icon: LayoutDashboard },
@@ -23,6 +35,9 @@ const NAV_ITEMS = [
 export function NavBar() {
   const { pathname } = useLocation()
   const { isDark, toggle } = useThemeStore()
+  const entries = useMoodStore(s => s.entries)
+  const todayEntry = entries.find(e => e.date === todayString())
+  const dot = todayEntry ? MOOD_DOT_COLORS[todayEntry.mood] : FALLBACK_DOT
 
   return (
     <>
@@ -31,7 +46,12 @@ export function NavBar() {
         <div className="max-w-5xl mx-auto w-full px-6 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e88] group-hover:shadow-[0_0_12px_#22c55eaa] transition-shadow" />
+            <span
+              className="w-2.5 h-2.5 rounded-full transition-shadow"
+              style={{ backgroundColor: dot.bg, boxShadow: dot.shadow }}
+              onMouseEnter={e => { (e.currentTarget as HTMLSpanElement).style.boxShadow = dot.shadowHover }}
+              onMouseLeave={e => { (e.currentTarget as HTMLSpanElement).style.boxShadow = dot.shadow }}
+            />
             <span className="font-display italic text-[22px] font-medium text-stone-900 dark:text-stone-50 tracking-tight">
               MoodLens
             </span>

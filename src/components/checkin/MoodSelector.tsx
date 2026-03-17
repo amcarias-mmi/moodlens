@@ -45,7 +45,7 @@ export function MoodSelector({ value, onChange }: MoodSelectorProps) {
               'transition-colors duration-200',
               selected
                 ? 'border-transparent shadow-lg'
-                : 'border-stone-200 bg-white hover:border-stone-300'
+                : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900 hover:border-stone-300'
             )}
           >
             {/* Sliding color background — shared layout animation */}

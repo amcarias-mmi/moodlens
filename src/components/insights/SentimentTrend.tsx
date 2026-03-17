@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { Info } from 'lucide-react'
 import { useMoodStore } from '@/store/moodStore'
+import { useThemeStore } from '@/store/themeStore'
 import { MOOD_META } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 import type { MoodLevel } from '@/types/mood'
@@ -84,18 +85,18 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   const avg = payload.find((p) => p.dataKey === 'rollingAvg')
 
   return (
-    <div className="bg-white border border-stone-200 rounded-xl px-3 py-2.5 shadow-xl text-xs min-w-[150px]">
-      <p className="font-semibold text-stone-500 mb-1.5">
+    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2.5 shadow-xl text-xs min-w-[150px]">
+      <p className="font-semibold text-stone-500 dark:text-stone-400 mb-1.5">
         {format(new Date(point.date + 'T00:00:00'), 'EEE, MMM d')}
       </p>
-      <p className="text-stone-900 flex items-center gap-1.5">
+      <p className="text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
         <span>{MOOD_META[point.mood].emoji}</span>
         <span className="font-medium">{MOOD_META[point.mood].label}</span>
       </p>
       {raw?.value != null && (
-        <p className="text-stone-500 mt-1 tabular-nums">
+        <p className="text-stone-500 dark:text-stone-400 mt-1 tabular-nums">
           Score:{' '}
-          <span className="text-stone-700 font-medium">
+          <span className="text-stone-700 dark:text-stone-200 font-medium">
             {raw.value > 0 ? '+' : ''}
             {raw.value.toFixed(2)}
           </span>
@@ -117,6 +118,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function SentimentTrend() {
   const [range, setRange] = useState<Range>('30d')
   const entries = useMoodStore((s) => s.entries)
+  const isDark = useThemeStore((s) => s.isDark)
 
   const data = useMemo<TrendPoint[]>(() => {
     const cutoff =
@@ -146,19 +148,24 @@ export function SentimentTrend() {
     <div className="space-y-4">
       {/* Range selector */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <p className="text-xs font-medium text-stone-400 uppercase tracking-wider">
+        <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider">
           Sentiment over time
         </p>
-        <div className="flex gap-1 bg-stone-100 rounded-xl p-1">
+        <div
+          role="group"
+          aria-label="Select time range"
+          className="flex gap-1 bg-stone-100 dark:bg-stone-800 rounded-xl p-1"
+        >
           {RANGES.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => setRange(value)}
+              aria-pressed={range === value}
               className={cn(
                 'px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150',
                 range === value
-                  ? 'bg-white text-stone-900 shadow-sm'
-                  : 'text-stone-500 hover:text-stone-700'
+                  ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-sm'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
               )}
             >
               {label}
@@ -169,7 +176,7 @@ export function SentimentTrend() {
 
       {/* Not enough data callout */}
       {!hasEnoughData && (
-        <div className="flex items-center gap-2.5 px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-500">
+        <div className="flex items-center gap-2.5 px-4 py-3 bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/50 rounded-xl text-sm text-stone-500 dark:text-stone-400">
           <Info size={15} className="text-stone-400 flex-shrink-0" />
           <span>
             {data.length === 0
@@ -193,7 +200,7 @@ export function SentimentTrend() {
 
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#f1f0ee"
+                stroke={isDark ? '#292524' : '#f1f0ee'}
                 vertical={false}
               />
 
@@ -202,8 +209,8 @@ export function SentimentTrend() {
                 tickFormatter={(d: string) =>
                   format(new Date(d + 'T00:00:00'), 'MMM d')
                 }
-                tick={{ fontSize: 10, fill: '#a8a29e', fontFamily: 'Outfit' }}
-                axisLine={{ stroke: '#e7e5e0' }}
+                tick={{ fontSize: 10, fill: isDark ? '#78716c' : '#a8a29e', fontFamily: 'Outfit' }}
+                axisLine={{ stroke: isDark ? '#44403c' : '#e7e5e0' }}
                 tickLine={false}
                 interval="preserveStartEnd"
               />
@@ -212,7 +219,7 @@ export function SentimentTrend() {
                 domain={[-1, 1]}
                 ticks={[-1, -0.5, 0, 0.5, 1]}
                 tickFormatter={(v: number) => v.toFixed(1)}
-                tick={{ fontSize: 10, fill: '#a8a29e', fontFamily: 'Outfit' }}
+                tick={{ fontSize: 10, fill: isDark ? '#78716c' : '#a8a29e', fontFamily: 'Outfit' }}
                 axisLine={false}
                 tickLine={false}
                 width={32}
@@ -223,7 +230,7 @@ export function SentimentTrend() {
               {/* Zero reference line */}
               <ReferenceLine
                 y={0}
-                stroke="#d1cdc7"
+                stroke={isDark ? '#57534e' : '#d1cdc7'}
                 strokeDasharray="5 3"
                 strokeWidth={1}
               />
@@ -258,7 +265,7 @@ export function SentimentTrend() {
 
       {/* Legend */}
       {data.length > 0 && (
-        <div className="flex items-center gap-4 text-xs text-stone-500">
+        <div className="flex items-center gap-4 text-xs text-stone-500 dark:text-stone-400">
           <span className="flex items-center gap-1.5">
             <span className="w-4 h-0.5 bg-amber-600 inline-block rounded" />
             Sentiment

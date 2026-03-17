@@ -4,6 +4,7 @@ import { subDays } from 'date-fns'
 import cloud from 'd3-cloud'
 import type { Word } from 'd3-cloud'
 import { useMoodStore } from '@/store/moodStore'
+import { useThemeStore } from '@/store/themeStore'
 import { STOP_WORDS } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 
@@ -26,17 +27,18 @@ const RANGES: { label: string; value: TimeRange }[] = [
 const CLOUD_W = 600
 const CLOUD_H = 340
 
-function sentimentToFill(avg: number): string {
-  if (avg >  0.35) return '#15803d'  // green-700
+function sentimentToFill(avg: number, isDark: boolean): string {
+  if (avg >  0.35) return '#16a34a'  // green-600 (readable on both)
   if (avg >  0.12) return '#65a30d'  // lime-600
   if (avg < -0.35) return '#dc2626'  // red-600
   if (avg < -0.12) return '#ea580c'  // orange-600
-  return '#57534e'                   // stone-600 neutral
+  return isDark ? '#a8a29e' : '#57534e'  // stone-400 dark / stone-600 light
 }
 
 function buildWordData(
   entries: ReturnType<typeof useMoodStore.getState>['entries'],
-  daysBack: number | null
+  daysBack: number | null,
+  isDark: boolean
 ): CloudWord[] {
   const cutoff = daysBack ? subDays(new Date(), daysBack) : null
 
@@ -81,7 +83,7 @@ function buildWordData(
     return {
       text,
       size: 13 + (data.count / maxCount) * 38,
-      fill: sentimentToFill(avgSentiment),
+      fill: sentimentToFill(avgSentiment, isDark),
       count: data.count,
       avgSentiment,
     }
@@ -94,12 +96,13 @@ export function WordCloud() {
   const [hoveredWord, setHoveredWord] = useState<string | null>(null)
   const navigate = useNavigate()
   const entries = useMoodStore((s) => s.entries)
+  const isDark = useThemeStore((s) => s.isDark)
   const cancelRef = useRef(false)
 
   const wordData = useMemo(() => {
     const daysBack = timeRange === 'all' ? null : Number(timeRange.replace('d', ''))
-    return buildWordData(entries, daysBack)
-  }, [entries, timeRange])
+    return buildWordData(entries, daysBack, isDark)
+  }, [entries, timeRange, isDark])
 
   const hasEnoughEntries = entries.length >= 5
 
@@ -141,15 +144,15 @@ export function WordCloud() {
         <span className="text-5xl mb-4" role="img" aria-label="speech balloon">
           💬
         </span>
-        <h3 className="font-display italic text-2xl font-medium text-stone-700">
+        <h3 className="font-display italic text-2xl font-medium text-stone-700 dark:text-stone-300">
           Keep journaling
         </h3>
-        <p className="mt-2 text-sm text-stone-400 max-w-xs leading-relaxed">
+        <p className="mt-2 text-sm text-stone-400 dark:text-stone-500 max-w-xs leading-relaxed">
           Add notes to at least{' '}
-          <span className="font-semibold text-stone-600">5 entries</span> to see your
+          <span className="font-semibold text-stone-600 dark:text-stone-300">5 entries</span> to see your
           word cloud — your most-used words, colored by emotional tone.
         </p>
-        <p className="mt-3 text-xs text-stone-400">
+        <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">
           {entries.length} / 5 entries logged
         </p>
       </div>
@@ -160,7 +163,7 @@ export function WordCloud() {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <span className="text-5xl mb-4">📝</span>
-        <p className="text-sm text-stone-400">
+        <p className="text-sm text-stone-400 dark:text-stone-500">
           No notes found in this time range.
         </p>
       </div>
@@ -171,19 +174,24 @@ export function WordCloud() {
     <div className="space-y-4">
       {/* Time range selector */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <p className="text-xs font-medium text-stone-400 uppercase tracking-wider">
+        <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider">
           Word frequency · colored by sentiment
         </p>
-        <div className="flex gap-1 bg-stone-100 rounded-xl p-1">
+        <div
+          role="group"
+          aria-label="Select time range"
+          className="flex gap-1 bg-stone-100 dark:bg-stone-800 rounded-xl p-1"
+        >
           {RANGES.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => setTimeRange(value)}
+              aria-pressed={timeRange === value}
               className={cn(
                 'px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150',
                 timeRange === value
-                  ? 'bg-white text-stone-900 shadow-sm'
-                  : 'text-stone-500 hover:text-stone-700'
+                  ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-sm'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
               )}
             >
               {label}
@@ -193,7 +201,7 @@ export function WordCloud() {
       </div>
 
       {/* Cloud SVG */}
-      <div className="relative overflow-hidden rounded-2xl bg-stone-50 border border-stone-100">
+      <div className="relative overflow-hidden rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-100 dark:border-stone-700/50">
         <svg
           viewBox={`0 0 ${CLOUD_W} ${CLOUD_H}`}
           width="100%"
@@ -244,7 +252,7 @@ export function WordCloud() {
         {/* Hover hint */}
         {hoveredWord && (
           <div className="absolute bottom-3 left-0 right-0 flex justify-center pointer-events-none">
-            <span className="text-xs bg-white/90 backdrop-blur-sm border border-stone-200 rounded-full px-3 py-1 text-stone-600 shadow-sm">
+            <span className="text-xs bg-white/90 dark:bg-stone-900/90 backdrop-blur-sm border border-stone-200 dark:border-stone-700 rounded-full px-3 py-1 text-stone-600 dark:text-stone-300 shadow-sm">
               Click to filter history by{' '}
               <span className="font-semibold">"{hoveredWord}"</span>
             </span>
@@ -252,16 +260,37 @@ export function WordCloud() {
         )}
       </div>
 
+      {/* Screen-reader accessible word list (visually hidden) */}
+      <ul className="sr-only" aria-label="Word frequency list">
+        {layoutWords.map((word) => {
+          const sentimentLabel =
+            word.avgSentiment > 0.35
+              ? 'very positive'
+              : word.avgSentiment > 0.12
+                ? 'positive'
+                : word.avgSentiment < -0.35
+                  ? 'very negative'
+                  : word.avgSentiment < -0.12
+                    ? 'negative'
+                    : 'neutral'
+          return (
+            <li key={word.text}>
+              {word.text} — used {word.count} time{word.count !== 1 ? 's' : ''}, {sentimentLabel} sentiment
+            </li>
+          )
+        })}
+      </ul>
+
       {/* Color legend */}
       <div className="flex items-center gap-4 text-xs flex-wrap">
         {[
-          { color: '#15803d', label: 'Very positive' },
+          { color: '#16a34a', label: 'Very positive' },
           { color: '#65a30d', label: 'Positive'      },
           { color: '#57534e', label: 'Neutral'        },
           { color: '#ea580c', label: 'Negative'       },
           { color: '#dc2626', label: 'Very negative'  },
         ].map(({ color, label }) => (
-          <span key={label} className="flex items-center gap-1.5 text-stone-500">
+          <span key={label} className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
             <span
               className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
               style={{ backgroundColor: color }}

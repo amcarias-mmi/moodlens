@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   startOfWeek,
   endOfWeek,
@@ -23,6 +23,7 @@ import {
   TrendingDown,
   Calendar,
   Minus,
+  AlertTriangle,
 } from 'lucide-react'
 import { useMoodStore } from '@/store/moodStore'
 import { MOOD_META, extractTopWords } from '@/lib/utils'
@@ -77,6 +78,7 @@ function PieTooltip({ active, payload }: PieTooltipProps) {
 export function WeeklyReport() {
   const [weekOffset, setWeekOffset] = useState(0)
   const entries = useMoodStore((s) => s.entries)
+  const prefersReduced = useReducedMotion() ?? false
 
   // Week bounds (Mon–Sun)
   const { weekStart, weekEnd } = useMemo(() => {
@@ -186,6 +188,10 @@ export function WeeklyReport() {
           <p className="font-display italic text-stone-800 dark:text-stone-100 text-lg leading-tight">
             {weekLabel}
           </p>
+          {/* Screen reader live region announces week changes */}
+          <p aria-live="polite" aria-atomic="true" className="sr-only">
+            Showing week of {weekLabel}
+          </p>
         </div>
 
         <button
@@ -199,13 +205,15 @@ export function WeeklyReport() {
       </div>
 
       {/* ── Content ── */}
+      {/* min-h prevents container collapse during exit animation, avoiding page jump */}
+      <div className="min-h-96">
       <AnimatePresence mode="wait">
         <motion.div
           key={weekOffset}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
+          initial={prefersReduced ? {} : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={prefersReduced ? {} : { opacity: 0 }}
+          transition={{ duration: prefersReduced ? 0 : 0.15 }}
         >
           {stats === null ? (
             <EmptyWeek weekLabel={weekLabel} hasAnyEntries={entries.length > 0} />
@@ -220,9 +228,9 @@ export function WeeklyReport() {
                 }}
               >
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  initial={prefersReduced ? {} : { scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.05, type: 'spring', stiffness: 350, damping: 25 }}
+                  transition={prefersReduced ? { duration: 0 } : { delay: 0.05, type: 'spring', stiffness: 350, damping: 25 }}
                 >
                   <span className="text-6xl block mb-3" role="img" aria-label={dominantMeta!.label}>
                     {dominantMeta!.emoji}
@@ -255,7 +263,7 @@ export function WeeklyReport() {
                   valueClass={sentimentColor(stats.avgSentiment)}
                 />
                 <StatCard
-                  icon={<span className="text-xs">⚠️</span>}
+                  icon={<AlertTriangle size={14} className="text-amber-500" />}
                   label="Divergences"
                   value={`${stats.divergenceCount}`}
                 />
@@ -310,14 +318,14 @@ export function WeeklyReport() {
                       const pct   = (count / stats.entryCount) * 100
                       return (
                         <div key={mood} className="flex items-center gap-2.5">
-                          <span className="text-sm w-5 text-center">{meta.emoji}</span>
+                          <span className="text-sm w-5 text-center" aria-hidden="true">{meta.emoji}</span>
                           <div className="flex-1 h-1.5 bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden">
                             <motion.div
                               className="h-full rounded-full"
                               style={{ backgroundColor: meta.color }}
-                              initial={{ width: 0 }}
+                              initial={prefersReduced ? { width: `${pct}%` } : { width: 0 }}
                               animate={{ width: `${pct}%` }}
-                              transition={{ delay: 0.15, duration: 0.5, ease: 'easeOut' }}
+                              transition={prefersReduced ? { duration: 0 } : { delay: 0.15, duration: 0.5, ease: 'easeOut' }}
                             />
                           </div>
                           <span className="text-xs text-stone-500 dark:text-stone-400 tabular-nums w-4 text-right">
@@ -328,6 +336,27 @@ export function WeeklyReport() {
                     })}
                   </div>
                 </div>
+
+                {/* Screen-reader accessible data table for the pie chart */}
+                <table className="sr-only">
+                  <caption>Mood distribution for the week of {weekLabel}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Mood</th>
+                      <th scope="col">Days</th>
+                      <th scope="col">Percentage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.pieData.map((item) => (
+                      <tr key={item.mood}>
+                        <td>{item.label}</td>
+                        <td>{item.count}</td>
+                        <td>{Math.round((item.count / stats.entryCount) * 100)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               {/* ── Best / Toughest day ── */}
@@ -354,9 +383,9 @@ export function WeeklyReport() {
                     {stats.topWords.map((word, i) => (
                       <motion.span
                         key={word}
-                        initial={{ opacity: 0, scale: 0.85 }}
+                        initial={prefersReduced ? {} : { opacity: 0, scale: 0.85 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 25 }}
+                        transition={prefersReduced ? { duration: 0 } : { delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 25 }}
                         className="font-display italic text-2xl md:text-3xl font-medium text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl px-4 py-2"
                       >
                         {word}
@@ -374,6 +403,7 @@ export function WeeklyReport() {
           )}
         </motion.div>
       </AnimatePresence>
+      </div>
     </div>
   )
 }

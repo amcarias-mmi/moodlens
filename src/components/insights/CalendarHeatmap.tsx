@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { format, startOfWeek, addDays, subWeeks, isSameDay } from 'date-fns'
+import { format, startOfWeek, addDays, subWeeks, isSameDay, subDays } from 'date-fns'
 import { useMoodStore } from '@/store/moodStore'
+import { useThemeStore } from '@/store/themeStore'
 import { MOOD_META } from '@/lib/utils'
 import type { MoodEntry } from '@/types/mood'
 
@@ -27,6 +28,7 @@ interface HoverInfo {
 
 export function CalendarHeatmap() {
   const entries = useMoodStore((s) => s.entries)
+  const isDark = useThemeStore((s) => s.isDark)
   const [hover, setHover] = useState<HoverInfo | null>(null)
 
   const entryMap = useMemo(
@@ -71,20 +73,66 @@ export function CalendarHeatmap() {
     return labels
   }, [weeks])
 
+  // Dark-mode-aware colors
+  const emptyFill    = isDark ? '#292524' : '#e7e5e0'   // stone-800 / stone-200
+  const labelFill    = isDark ? '#78716c' : '#a8a29e'   // stone-500 / stone-400
+  const todayStroke  = isDark ? '#f5f5f4' : '#1c1917'   // stone-100 / stone-900
+
   function cellColor(date: Date): string {
     const dateStr = format(date, 'yyyy-MM-dd')
     const entry = entryMap.get(dateStr)
-    if (!entry) return '#e7e5e0'
+    if (!entry) return emptyFill
     return MOOD_META[entry.mood].color
   }
 
+  const loggedInPeriod = useMemo(() => {
+    let count = 0
+    for (const week of weeks) {
+      for (const date of week) {
+        if (date && entryMap.has(format(date, 'yyyy-MM-dd'))) count++
+      }
+    }
+    return count
+  }, [weeks, entryMap])
+
+  // Entries sorted chronologically for the SR table (past 53 weeks)
+  const srEntries = useMemo(() => {
+    const cutoff = subDays(today, WEEKS * 7)
+    return [...entries]
+      .filter((e) => new Date(e.date + 'T00:00:00') >= cutoff)
+      .sort((a, b) => b.timestamp - a.timestamp)
+  }, [entries, today])
+
   return (
     <div>
+      {/* Screen-reader summary table (visually hidden) */}
+      <div className="sr-only">
+        <p>{loggedInPeriod} of the past year's days have mood entries.</p>
+        <table>
+          <caption>Mood entries for the past year</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Mood</th>
+            </tr>
+          </thead>
+          <tbody>
+            {srEntries.map((entry) => (
+              <tr key={entry.id}>
+                <td>{format(new Date(entry.date + 'T00:00:00'), 'MMMM d, yyyy')}</td>
+                <td>{MOOD_META[entry.mood].label}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <div className="overflow-x-auto pb-2">
         <svg
           viewBox={`0 0 ${SVG_W} ${SVG_H}`}
           width="100%"
           style={{ display: 'block', minWidth: 500 }}
+          aria-hidden="true"
           onMouseLeave={() => setHover(null)}
         >
           {/* Month labels */}
@@ -94,7 +142,7 @@ export function CalendarHeatmap() {
               x={x}
               y={TOP_PAD - 6}
               fontSize={10}
-              fill="#a8a29e"
+              fill={labelFill}
               fontFamily="Outfit, sans-serif"
             >
               {label}
@@ -109,7 +157,7 @@ export function CalendarHeatmap() {
                 x={LEFT_PAD - 5}
                 y={TOP_PAD + i * STEP + CELL - 1}
                 fontSize={9}
-                fill="#a8a29e"
+                fill={labelFill}
                 textAnchor="end"
                 fontFamily="Outfit, sans-serif"
               >
@@ -138,7 +186,7 @@ export function CalendarHeatmap() {
                     rx={2}
                     ry={2}
                     fill={cellColor(date)}
-                    stroke={isToday ? '#1c1917' : 'none'}
+                    stroke={isToday ? todayStroke : 'none'}
                     strokeWidth={isToday ? 1.5 : 0}
                     style={{ cursor: 'pointer' }}
                     onMouseEnter={(e) =>
@@ -162,7 +210,7 @@ export function CalendarHeatmap() {
                   x={LEFT_PAD}
                   y={legendY + 9}
                   fontSize={10}
-                  fill="#a8a29e"
+                  fill={labelFill}
                   fontFamily="Outfit, sans-serif"
                 >
                   No entry
@@ -173,7 +221,7 @@ export function CalendarHeatmap() {
                   width={CELL}
                   height={CELL}
                   rx={2}
-                  fill="#e7e5e0"
+                  fill={emptyFill}
                 />
                 {MOOD_LEVELS.map((level, i) => (
                   <g key={level}>
@@ -191,7 +239,7 @@ export function CalendarHeatmap() {
                   x={LEFT_PAD + 70 + MOOD_LEVELS.length * (CELL + 3) + 4}
                   y={legendY + 9}
                   fontSize={10}
-                  fill="#a8a29e"
+                  fill={labelFill}
                   fontFamily="Outfit, sans-serif"
                 >
                   {MOOD_META[5].emoji} Great
@@ -213,18 +261,18 @@ export function CalendarHeatmap() {
               zIndex: 9999,
               pointerEvents: 'none',
             }}
-            className="bg-white border border-stone-200 rounded-xl px-3 py-2.5 shadow-xl min-w-[160px]"
+            className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2.5 shadow-xl min-w-[160px]"
           >
-            <p className="text-xs font-semibold text-stone-500 mb-1">
+            <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">
               {format(new Date(hover.dateStr + 'T00:00:00'), 'EEE, MMMM d, yyyy')}
             </p>
             {hover.entry ? (
               <>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
                   {MOOD_META[hover.entry.mood].emoji} {MOOD_META[hover.entry.mood].label}
                 </p>
                 {hover.entry.sentimentScore !== null && (
-                  <p className="text-xs text-stone-500 mt-0.5 tabular-nums">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 tabular-nums">
                     Sentiment:{' '}
                     {hover.entry.sentimentScore > 0 ? '+' : ''}
                     {hover.entry.sentimentScore.toFixed(2)}
@@ -232,7 +280,7 @@ export function CalendarHeatmap() {
                 )}
               </>
             ) : (
-              <p className="text-sm text-stone-400">No entry</p>
+              <p className="text-sm text-stone-400 dark:text-stone-500">No entry</p>
             )}
           </div>,
           document.body

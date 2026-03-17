@@ -58,6 +58,13 @@ export function EntryList({ wordFilter }: EntryListProps) {
 
   return (
     <div className="space-y-4">
+      {/* Persistent live region for screen readers — announces filter results */}
+      <p aria-live="polite" aria-atomic="true" className="sr-only">
+        {hasFilters
+          ? `${filtered.length} ${filtered.length === 1 ? 'entry' : 'entries'} found`
+          : ''}
+      </p>
+
       {/* ── Search bar ── */}
       <div className="relative">
         <Search
@@ -94,11 +101,16 @@ export function EntryList({ wordFilter }: EntryListProps) {
       </div>
 
       {/* ── Mood filter pills ── */}
-      <div className="flex gap-1.5 flex-wrap items-center">
+      <div
+        role="group"
+        aria-label="Filter by mood"
+        className="flex gap-1.5 flex-wrap items-center"
+      >
         <button
           onClick={() => setMoodFilter(null)}
+          aria-pressed={moodFilter === null}
           className={cn(
-            'px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
+            'cursor-pointer px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
             moodFilter === null
               ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-sm'
               : 'bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
@@ -114,15 +126,16 @@ export function EntryList({ wordFilter }: EntryListProps) {
             <button
               key={level}
               onClick={() => setMoodFilter(active ? null : level)}
+              aria-pressed={active}
               style={active ? { backgroundColor: meta.color, borderColor: 'transparent' } : undefined}
               className={cn(
-                'flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
+                'cursor-pointer flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150',
                 active
                   ? 'text-white shadow-sm'
                   : 'bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:border-stone-400 dark:hover:border-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
               )}
             >
-              <span>{meta.emoji}</span>
+              <span aria-hidden="true">{meta.emoji}</span>
               <span>{meta.label}</span>
             </button>
           )
@@ -143,46 +156,33 @@ export function EntryList({ wordFilter }: EntryListProps) {
         </AnimatePresence>
       </div>
 
-      {/* ── Word filter banner ── */}
-      <AnimatePresence>
-        {wordFilter && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="flex items-center justify-between px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-sm">
-              <span className="text-amber-800">
-                Showing entries containing{' '}
-                <span className="font-semibold">"{wordFilter}"</span>
-              </span>
-            </div>
-          </motion.div>
+      {/* ── Word filter banner — CSS transition avoids height-driven layout shift ── */}
+      <div
+        className={cn(
+          'overflow-hidden transition-all duration-200 ease-out',
+          wordFilter ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         )}
-      </AnimatePresence>
+        aria-hidden={!wordFilter}
+      >
+        <div className="flex items-center justify-between px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+          <span className="text-amber-800">
+            Showing entries containing{' '}
+            <span className="font-semibold">"{wordFilter}"</span>
+          </span>
+        </div>
+      </div>
 
-      {/* ── Results count ── */}
-      <AnimatePresence>
-        {hasFilters && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-xs text-stone-400"
-          >
-            {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'} found
-          </motion.p>
-        )}
-      </AnimatePresence>
+      {/* ── Results count — always rendered to avoid height shift ── */}
+      <p className="text-xs text-stone-400 min-h-[18px] transition-opacity duration-150" style={{ opacity: hasFilters ? 1 : 0 }}>
+        {hasFilters ? `${filtered.length} ${filtered.length === 1 ? 'entry' : 'entries'} found` : ''}
+      </p>
 
       {/* ── Timeline grouped list ── */}
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         {grouped.length > 0 ? (
           grouped.map(({ key, label, entries: groupEntries }) => (
             <motion.div
               key={key}
-              layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -201,7 +201,7 @@ export function EntryList({ wordFilter }: EntryListProps) {
 
               {/* Cards in this month */}
               <div className="space-y-2">
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence>
                   {groupEntries.map((entry, idx) => (
                     <EntryCard
                       key={entry.id}
@@ -274,10 +274,10 @@ function EmptyState({
             </span>
             <div className="absolute -top-1 -right-2 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />
           </div>
-          <h3 className="font-display italic text-2xl font-medium text-stone-700">
+          <h3 className="font-display italic text-2xl font-medium text-stone-700 dark:text-stone-400">
             Your journal awaits
           </h3>
-          <p className="mt-2 text-sm text-stone-400 max-w-xs leading-relaxed">
+          <p className="mt-2 text-sm text-stone-400 dark:text-stone-500 max-w-xs leading-relaxed">
             Log your first mood entry from the dashboard to start your chronicle.
           </p>
           <div className="mt-4 flex items-center gap-1.5 text-xs text-stone-400">

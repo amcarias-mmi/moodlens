@@ -71,12 +71,11 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
     <>
       <TooltipProvider>
         <motion.div
-          layout
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.97, y: -6, transition: { delay: 0, duration: 0.18 } }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.15 } }}
           transition={{
-            duration: 0.25,
+            duration: 0.2,
             delay: Math.min(index * 0.04, 0.2),
           }}
           className="relative bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 group"
@@ -209,21 +208,21 @@ export function EntryCard({ entry, onEdit, index = 0 }: EntryCardProps) {
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="sm:max-w-[400px] rounded-2xl border-stone-200">
+        <DialogContent className="sm:max-w-[400px] rounded-2xl border-stone-200 dark:border-stone-700 dark:bg-stone-900">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-medium text-stone-900">
+            <DialogTitle className="font-display text-xl font-medium text-stone-900 dark:text-stone-100">
               Delete this entry?
             </DialogTitle>
-            <DialogDescription className="text-sm text-stone-500 leading-relaxed">
+            <DialogDescription className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
               Your entry from{' '}
-              <span className="font-medium text-stone-700">{formattedDate}</span> will be
+              <span className="font-medium text-stone-700 dark:text-stone-300">{formattedDate}</span> will be
               permanently removed. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 mt-2">
             <Button
               variant="outline"
-              className="rounded-xl border-stone-200"
+              className="rounded-xl border-stone-200 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
               onClick={() => setDeleteOpen(false)}
             >
               Cancel

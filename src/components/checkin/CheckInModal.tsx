@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { format } from 'date-fns'
 import { AlertTriangle } from 'lucide-react'
@@ -39,6 +39,7 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const prefersReduced = useReducedMotion() ?? false
 
   const addEntry = useMoodStore((s) => s.addEntry)
   const updateEntry = useMoodStore((s) => s.updateEntry)
@@ -96,27 +97,27 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-stone-200">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-2xl border-stone-200 dark:border-stone-700 dark:bg-stone-900">
         <AnimatePresence mode="wait">
           {showConfirm ? (
             /* ── Confirmation screen ── */
             <motion.div
               key="confirm"
-              initial={{ opacity: 0, x: 20 }}
+              initial={prefersReduced ? { opacity: 0 } : { opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
+              exit={prefersReduced ? { opacity: 0 } : { opacity: 0, x: -20 }}
+              transition={{ duration: prefersReduced ? 0.1 : 0.2 }}
               className="p-6 space-y-5"
             >
               <div className="flex items-start gap-3">
-                <span className="mt-0.5 p-2 bg-amber-50 rounded-xl">
+                <span className="mt-0.5 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
                   <AlertTriangle size={18} className="text-amber-600" />
                 </span>
                 <div>
-                  <h3 className="font-display text-xl font-medium text-stone-900">
+                  <h3 className="font-display text-xl font-medium text-stone-900 dark:text-stone-100">
                     {isTodayEntry ? "Replace today's entry?" : 'Update this entry?'}
                   </h3>
-                  <p className="mt-1 text-sm text-stone-500 leading-relaxed">
+                  <p className="mt-1 text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
                     {isTodayEntry
                       ? "You've already logged your mood today. Saving will replace your existing entry."
                       : `This will update your entry from ${displayDate}.`}
@@ -126,12 +127,12 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
 
               {/* Preview of new values */}
               {mood && (
-                <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200">
+                <div className="flex items-center gap-3 p-3 bg-stone-50 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
                   <span className="text-2xl">{MOOD_META[mood].emoji}</span>
                   <div>
-                    <p className="text-sm font-semibold text-stone-800">{MOOD_META[mood].label}</p>
+                    <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{MOOD_META[mood].label}</p>
                     {note && (
-                      <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">{note}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">{note}</p>
                     )}
                   </div>
                 </div>
@@ -164,12 +165,12 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
               transition={{ duration: 0.15 }}
             >
               {/* Header strip */}
-              <div className="px-6 pt-6 pb-4 border-b border-stone-100">
-                <p className="text-xs font-medium text-stone-400 uppercase tracking-wider mb-1">
+              <div className="px-6 pt-6 pb-4 border-b border-stone-100 dark:border-stone-800">
+                <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-1">
                   {displayDate}
                 </p>
                 <DialogHeader>
-                  <DialogTitle className="font-display text-2xl font-medium text-stone-900 leading-tight">
+                  <DialogTitle className="font-display text-2xl font-medium text-stone-900 dark:text-stone-50 leading-tight">
                     {isEditing
                       ? isTodayEntry
                         ? "Edit today's entry"
@@ -193,7 +194,7 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
                 <div className="space-y-1.5">
                   <label
                     htmlFor="mood-note"
-                    className="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+                    className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider"
                   >
                     Note <span className="font-normal normal-case">(optional)</span>
                   </label>
@@ -203,11 +204,11 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
                     value={note}
                     onChange={(e) => setNote(e.target.value.slice(0, MAX_NOTE))}
                     rows={3}
-                    className="resize-none bg-stone-50 border-stone-200 focus:border-amber-300 focus:ring-amber-200 text-sm placeholder:text-stone-400 rounded-xl"
+                    className="resize-none bg-stone-50 dark:bg-stone-800 border-stone-200 dark:border-stone-700 focus:border-amber-300 focus:ring-amber-200 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 rounded-xl"
                   />
                   <p
                     className={`text-right text-xs tabular-nums ${
-                      note.length >= MAX_NOTE ? 'text-red-500' : 'text-stone-400'
+                      note.length >= MAX_NOTE ? 'text-red-500' : 'text-stone-400 dark:text-stone-500'
                     }`}
                   >
                     {note.length} / {MAX_NOTE}
@@ -219,13 +220,13 @@ export function CheckInModal({ open, onOpenChange, existingEntry }: CheckInModal
               <div className="px-6 pb-6 flex gap-2">
                 <Button
                   variant="outline"
-                  className="flex-1 rounded-xl border-stone-200 text-stone-600 hover:bg-stone-100"
+                  className="flex-1 rounded-xl border-stone-200 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
                   onClick={() => onOpenChange(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 rounded-xl bg-stone-900 hover:bg-stone-800 text-white disabled:opacity-40"
+                  className="flex-1 rounded-xl bg-stone-900 dark:bg-stone-800 hover:bg-stone-800 dark:hover:bg-stone-700 text-white disabled:opacity-40"
                   onClick={() => void handleSave()}
                   disabled={!canSave || saving}
                 >
