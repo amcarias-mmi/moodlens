@@ -1,4 +1,4 @@
-import type { MoodLevel } from '@/types/mood'
+import type { MoodEntry, MoodLevel } from '@/types/mood'
 
 export const MOOD_META: Record<MoodLevel, {
   label: string;
@@ -24,6 +24,27 @@ export function formatDate(date: string): string {
 
 export function todayString(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+/** Extract the top N most-frequent non-stop words from a set of entries. */
+export function extractTopWords(entries: MoodEntry[], limit = 3): string[] {
+  const freq = new Map<string, number>()
+  for (const entry of entries) {
+    if (!entry.note) continue
+    const words = entry.note
+      .toLowerCase()
+      .replace(/[^a-z\s']/g, ' ')
+      .split(/\s+/)
+      .map((w) => w.replace(/^'+|'+$/g, ''))
+      .filter((w) => w.length > 2 && !STOP_WORDS.has(w))
+    for (const word of words) {
+      freq.set(word, (freq.get(word) ?? 0) + 1)
+    }
+  }
+  return [...freq.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([word]) => word)
 }
 
 export const STOP_WORDS = new Set([
