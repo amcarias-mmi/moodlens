@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
+import { useSearchParams } from 'react-router-dom'
 import { useMoodStore } from '@/store/moodStore'
 import { EntryList } from '@/components/history/EntryList'
 import { MOOD_META } from '@/lib/utils'
@@ -8,6 +9,8 @@ import type { MoodLevel } from '@/types/mood'
 
 export default function History() {
   const entries = useMoodStore((s) => s.entries)
+  const [searchParams] = useSearchParams()
+  const wordFilter = searchParams.get('word') ?? undefined
 
   const stats = useMemo(() => {
     if (entries.length === 0) return null
@@ -78,7 +81,7 @@ export default function History() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
       >
-        <EntryList />
+        <EntryList wordFilter={wordFilter} />
       </motion.div>
     </div>
   )
